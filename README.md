@@ -6,7 +6,8 @@
 ### 1.安装依赖
 ```bash
   npm install -S jsdom
-  pip install -r ./requirement.txt
+  pip install PyExecJS
+  pip install requests
 ```
 
 ### 2.从网页中获得你的Cookie
