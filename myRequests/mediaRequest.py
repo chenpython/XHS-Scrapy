@@ -36,13 +36,14 @@ def getUserMidea(user_id, cookie, args, cursor=''):
             getUserImageHelper(new_cursor)
         else:
             for note_id_ in note_id:
-                feed(user_id, note_id_, cookie_, args)
+                feed(note_id_, cookie_, args)
 
     getUserImageHelper(cursor)
     note_id.clear()
 
 
-def feed(user_id, note_id_, cookie_, args):
+def feed(note_id_, cookie_, args):
+    username = ''
     json_data = {
         'source_note_id': note_id_
     }
@@ -57,18 +58,20 @@ def feed(user_id, note_id_, cookie_, args):
         for item in items:
             if item['model_type'] == 'note':
                 note_card = item['note_card']
+                if username == '':
+                    username = note_card['user']['nickname']
                 if note_card['type'] == 'normal':
                     print(f'开始下载[图片]:{note_id_}')
-                    image_parse(user_id, note_id_, note_card, args)
+                    image_parse(username, note_id_, note_card, args)
                 elif note_card['type'] == 'video':
                     print(f'开始下载[视频]:{note_id_}')
-                    video_parse(user_id, note_id_, note_card, args)
+                    video_parse(username, note_id_, note_card, args)
 
 
-def video_parse(user_id, note_id_, note_card, args):
+def video_parse(username, note_id_, note_card, args):
     media = note_card['video']['media']
     stream = media['stream']
-    save_path = os.path.join(args.output, user_id, 'video')
+    save_path = os.path.join(args.output, username, 'video')
     key = ''
     for k, v in stream.items():
         if len(v) != 0:
@@ -76,7 +79,7 @@ def video_parse(user_id, note_id_, note_card, args):
             break
     if key != '':
         video_url = stream[key][0]['master_url']
-        imageU.downloadFromUrl(video_url, save_path, f'{note_id_}.mp4')
+        imageU.downloadFromUrl(video_url, save_path, f'{note_card["title"].replace(" ","")}.mp4')
     print(f'{note_id_}下载完成')
 
 
@@ -86,6 +89,6 @@ def image_parse(user_id, note_id_, note_card, args):
     save_path = os.path.join(args.output, user_id, 'images')
     for image in image_list:
         url = image['url']
-        imageU.downloadFromUrl(url, save_path, f'{note_id_}-{index}.png')
+        imageU.downloadFromUrl(url, save_path, f'{note_card["title"].replace(" ","")}-{index}.png')
         index += 1
     print(f'{note_id_}下载完成')
